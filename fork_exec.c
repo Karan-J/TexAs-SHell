@@ -14,13 +14,17 @@ int main(){
     	printf("tash> ");
 	while ((line_len = getline(&line, &len, stdin)) != -1) {
           printf("Retrieved line of length %zu :\n", line_len);
-          printf("%s", line);
+          printf("Command retrieved: %s", line);
 
 		myargs[0] = strtok(line, "\n");
 		int rc = fork();
 
 		if(strcmp(myargs[0],"exit")){
 			exit(0);
+		}
+		
+		else if (strstr(line,"cd")){
+			printf("cd command entered");
 		}
 		
 		if(rc == 0) {
@@ -31,6 +35,7 @@ int main(){
 
 		else {
 			int wc = wait(NULL);
+			printf("wc = %d",wc);
 			printf("tash> ");
 		}
 	}
