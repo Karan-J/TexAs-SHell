@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/wait.h>
 
 int main(){
 	
@@ -19,10 +20,11 @@ int main(){
 		myargs[0] = strtok(line, "\n");
 		int rc = fork();
 
-		if(strcmp(myargs[0],"exit")){
+	/*	if(strcmp(myargs[0],"exit")){
+			//printf("found exit\n");
 			exit(0);
 		}
-		
+	*/	
 		if(rc == 0) {
 			printf("Hello I am child process with pid: %d\n",(int) getpid());
 			
@@ -31,6 +33,7 @@ int main(){
 
 		else {
 			int wc = wait(NULL);
+			printf("wait = %d\n",wc);
 			printf("tash> ");
 		}
 	}
