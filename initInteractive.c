@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/wait.h>
 
 bool initInteractive(){
 	
@@ -16,53 +17,88 @@ bool initInteractive(){
 	printf("tash> ");
 	
 	while ( (line_length = getline(&inputLine, &length, stdin) != -1 ) ) {
-		
-		printf("Command retrieved: %s and line_length is %zu", inputLine, line_length);
+
+		if (inputLine == NULL) {
+			return false;
+		}		
+
+		printf("retrievedLineLength is %zu\n", line_length);
+		printf("Command retrieved: %s\n", inputLine);
+		//printf(tashArgs[0]);
+		//printf("\n %d\n",strcmp(tashArgs[0],"exit"));
+		//printf(tashArgs[2]);
+
+		//printf("Command retrieved: %s and line_length is %zu\n", inputLine, line_length);
 		
 		tashArgs[0] = strtok(inputLine,"\n");
+		int pid = fork();
 		
-		if ( strcmp(tashArgs[0], "exit") ) {
+		if ( strcmp(tashArgs[0], "exit") == 0 ) {
 			// call exit syscall with 0 as param
-			exit(0);
-			return true;
+			printf("exit called\n");
+			//exit(0);
+//			return true;
 		}
 		
-		else if ( strcmp(tashArgs[0], "cd") ) {
+
+		else if ( strcmp(tashArgs[0], "cd") == 0 ) {
 			// call cd function using chdir() with arg as a syscall. if 0 or >1 arg, throw an error. if chdir() fails, throw an error
-			return true;
+			printf("cd called\n");
+//			return true;
 		}
 		
-		else if ( strcmp(tashArgs[0], "path" ) ) {
+		else if ( strcmp(tashArgs[0], "path") == 0 ) {
 			// call path function with 0 or more args with each arg space-separated. 
 			// by default, the shell should execute only the built-in cmds viz. exit, cd, path
 			// if path is called with args, it should overwrite the previous path and 
 			// only execute the files present in the directories specified by the args
 			
 			//check for redirection
-			return true;
+			printf("path called\n");
+//			return true;
 		}
 		
-		else if ( strtok(inputLine, "&") ) {
+		else if ( strtok(inputLine, "&") == 0 ) {
 			// parallel cmd processing
 			// check for redirection 
-			return true;
+			// this is not working properly
+			// ----------------------------------
+			printf("& found\n");
+//			return true;
 		}
 		
-		else if ( strtok(inputLine, ">") ) {
+		else if ( strtok(inputLine, ">") == 0 ) {
 			// redirection of the cmd's o/p to a file
-			return true;
-		}
-		
-		
+			// this is not working properly
+			// --------------------------------
+			printf("> found\n");
+//			return true;
+		}		
 		
 		else {
 			// normal execution flow of code by reading the cmd and its args
 			// take care of multiple white-spaces in the line given as i/p
-			return true;
+			printf("normal execution\n");
+			if (pid == 0) {
+				printf("Hi, I am a child process with pid %d\n", (int) getpid());
+				execvp(tashArgs[0],tashArgs);
+			}
+			else {
+				int waitCount = wait(NULL);
+				printf("waitCount = %d\n",waitCount);
+				printf("tash> ");
+			}
+		//	return true;
 			
 		}
 		
 	}
-	
+	printf("reached here\n");
 	return false;
+}
+
+int main() {
+	bool b =  initInteractive();
+	printf("b = %d",b);
+	return 0;
 }
