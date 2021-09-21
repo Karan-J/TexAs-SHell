@@ -1,15 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include<sys/wait.h>
-#include<stdbool.h>
-
-//The one and only error message of the program.
-#define ERROR_MSG "An error has occured\n"
-#define DEFAULT_PATH "/bin"
-char* gPath = NULL;
-
 void parseAndExecute(char * iLineBuffer)
 {
     if(NULL == iLineBuffer)
@@ -24,21 +12,24 @@ void parseAndExecute(char * iLineBuffer)
     const char tSpaces[] = " \t\r\n\v\f";
     const char tAmpersand[] = "&";
 
+    // char **tCmdArr;
+
     for( tAmpersandToken=strtok_r(iLineBuffer,tAmpersand,&tSaveAmpersandToken) ; tAmpersandToken!=NULL ; tAmpersandToken=strtok_r(NULL,tAmpersand,&tSaveAmpersandToken) )
     {
         for(tSpaceToken=strtok_r(tAmpersandToken,tSpaces,&tSaveSpaceToken) ; tSpaceToken!=NULL ; tSpaceToken=strtok_r(NULL,tSpaces,&tSaveSpaceToken) ) 
         {
-            // printf("%s ",tSpaceToken);
+            
+            printf("%s ",tSpaceToken);
         }
         printf("\n");
     }
 }
 
-bool initBatch(char* iArgv)
+void initBatch(char* iArgv)
 {
     if(NULL == iArgv)
     {
-        return false;
+        return;
     }
 
     FILE *tFileHandler;
@@ -49,7 +40,7 @@ bool initBatch(char* iArgv)
 
     if(NULL == tFileHandler)
     {
-        return false;
+        return;
     }
     
     while(true)
@@ -63,36 +54,10 @@ bool initBatch(char* iArgv)
 
         parseAndExecute(tLineBuffer);
     }
-
-    return true;
 }
 
-void modifyPath(char* iPath)
-{
-    if(NULL != gPath)
-    {
-        free(gPath);
-        gPath = NULL;
-    }
-
-    gPath = (char *) malloc(100);
-
-    if(NULL != gPath)
-    {
-        strncpy(gPath,iPath,100);
-    }
-    else
-    {
-        gPath = (char *) malloc(100);
-
-        if(NULL != gPath)
-        {
-            strncpy(gPath,DEFAULT_PATH,100);
-        }
-    }
-}
-
-bool initTash(int iArgc, char** iArgv)
+//Initialize tash
+void initTash(int iArgc, char** iArgv)
 {
     switch(iArgc)
     {
@@ -104,28 +69,47 @@ bool initTash(int iArgc, char** iArgv)
         }
         case 2:
         {
-            return initBatch(iArgv[iArgc-1]);
+            printf("Batch Mode\n");
+            initBatch(iArgv[iArgc-1]);
+            break;
         }
         default:
         {
-            return false;
+            break;
         }
     }
-
-    return true;
 }
 
-//Main
-int main(int iArgc, char** iArgv)
+//Change path variable for the program
+void modifyPath(char* iPath)
 {
-    modifyPath(DEFAULT_PATH);
-
-    printf("PATH: %s\n",gPath);
-
-    if(true != initTash(iArgc,iArgv))
+    if(NULL != gPath)
     {
-        return write(STDERR_FILENO,ERROR_MSG,strlen(ERROR_MSG));
+        free(gPath);
+        gPath = NULL;
     }
 
-    return 0;
+    gPath = (char *) malloc(DEFAULT_PATH_SIZE);
+
+    if(NULL != gPath)
+    {
+        strncpy(gPath,iPath,DEFAULT_PATH_SIZE);
+    }
+    else
+    {
+        gPath = (char *) malloc(DEFAULT_PATH_SIZE);
+
+        if(NULL != gPath)
+        {
+            strncpy(gPath,DEFAULT_PATH,DEFAULT_PATH_SIZE);
+        }
+    }
+}
+
+//tTemp in this function is used to avoid compilation errors since we need to use the return value of write().
+void printErrorMsg()
+{
+    int tTemp = 0;
+    tTemp = write(STDERR_FILENO,ERROR_MSG,strlen(ERROR_MSG));
+    tTemp++;
 }
