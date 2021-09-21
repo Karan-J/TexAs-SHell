@@ -1,0 +1,2 @@
+shreyans     & exit
+&cd /bin/shreyans &&        ls & vim txt
