@@ -90,17 +90,20 @@ void executeCmd(char *iPath,char **iCmdArr)
  */
 void dispatchCmd(char **iCmdArr,size_t iArrNullIdx)
 {
+    //Built-in Command - exit.
     if(0 == strcmp("exit",iCmdArr[0]))
     {
         exit(0);
     }
 
+    //Built-in Command - path.
     if(0 == strcmp("path",iCmdArr[0]))
     {
         modifyPath(iCmdArr[1]);
         return;
     }
     
+    ////Built-in Command - cd.
     if(0 == strcmp("cd",iCmdArr[0]))
     {
         if(-1 == chdir(iCmdArr[1]))
@@ -185,7 +188,6 @@ void parseAndDispatch(char * iLineBuffer, size_t iSize)
 
         dispatchCmd(tCmdArr,tCmdArrIdx);
         tCmdArrIdx = 0;
-        printf("\n");
     }
 }
 
@@ -255,7 +257,7 @@ void initTash(int iArgc, char** iArgv)
     {
         case 1:
         {
-            printf("Interactive Mode\n"); //Start tash in interactive mode.
+            // printf("Interactive Mode\n"); //Start tash in interactive mode.
             break;
         }
         case 2:
