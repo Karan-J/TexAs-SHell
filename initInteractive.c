@@ -23,6 +23,12 @@ void initInteractive(){
 	
 	while ( (line_length = getline(&inputLine, &length, stdin) != -1 ) ) {
 
+
+		if (inputLine == NULL) {
+			return false;
+		}		
+
+
 //		printf("retrievedLineLength is %zu\n", line_length);
 //		printf("Command retrieved: %s\n", inputLine);
 
@@ -41,7 +47,9 @@ void initInteractive(){
 		else if ( strcmp(tashArgs[0], "cd") == 0 ) {
 			// call cd function using chdir() with arg as a syscall. if 0 or >1 arg, throw an error. if chdir() fails, throw an error
 			printf("cd called\n");
+
 			cdSysCall(*tashArgs);
+
 		}
 		
 		else if ( strcmp(tashArgs[0], "path") == 0 ) {
@@ -52,7 +60,9 @@ void initInteractive(){
 			
 			//check for redirection
 			printf("path called\n");
+
 			pathSysCall(*tashArgs);
+
 		}
 		
 		else if ( strtok(inputLine, "&") == 0 ) {
