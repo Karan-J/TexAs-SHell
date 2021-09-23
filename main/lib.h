@@ -12,3 +12,4 @@
 #include <string.h>
 #include<sys/wait.h>
 #include<stdbool.h>
+#include<fcntl.h>

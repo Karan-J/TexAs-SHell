@@ -27,6 +27,12 @@ void printErrorMsg(void)
  */
 void modifyPath(char* iPath)
 {
+    if(NULL == iPath)
+    {
+        printErrorMsg();
+        return;
+    }
+
     //This is required for overwriting the path variable.
     if(NULL != gPath)
     {
@@ -71,7 +77,29 @@ void executeCmd(char *iPath,char **iCmdArr)
 
     else if(0 == tRc)
     {
-        execv(iPath,iCmdArr);
+        int tIndex = 0;
+        while(NULL != iCmdArr[tIndex])
+        {
+            if (0 == strcmp(iCmdArr[tIndex],">"))
+            {
+                char *tOutputPath = NULL;
+                tOutputPath = (char *) malloc(sizeof(iCmdArr[tIndex+2]) + 3);
+                strcpy(tOutputPath,"./");
+                strcat(tOutputPath,iCmdArr[tIndex+2]);
+                close(STDOUT_FILENO);
+                open(tOutputPath, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
+                iCmdArr[tIndex] = NULL;
+                iCmdArr[tIndex+1] = NULL;
+                break;
+            }
+            tIndex++;
+        }
+        
+        if(-1 == execv(iPath,iCmdArr))
+        {
+            printErrorMsg();
+            return;
+        }
     }
 
     else
@@ -90,6 +118,11 @@ void executeCmd(char *iPath,char **iCmdArr)
  */
 void dispatchCmd(char **iCmdArr,size_t iArrNullIdx)
 {
+    if(NULL == iCmdArr[0])
+    {
+        return;
+    }
+
     //Built-in Command - exit.
     if(0 == strcmp("exit",iCmdArr[0]))
     {
@@ -99,7 +132,28 @@ void dispatchCmd(char **iCmdArr,size_t iArrNullIdx)
     //Built-in Command - path.
     if(0 == strcmp("path",iCmdArr[0]))
     {
-        modifyPath(iCmdArr[1]);
+        char *tPath = NULL;
+
+        tPath = (char *) malloc(sizeof(iCmdArr) + ((iArrNullIdx-1)*sizeof(char*)) + 1);
+
+        if(NULL == tPath)
+        {
+            return;
+        }
+
+        int tIndex = 2;
+        strcpy(tPath,iCmdArr[1]);
+        strcat(tPath," ");
+
+        while(NULL != iCmdArr[tIndex])
+        {
+            strcpy(tPath,iCmdArr[tIndex]);
+            strcat(tPath," ");
+            tIndex++;
+        }
+
+        modifyPath(tPath);
+        printf("Path: %s\n",gPath);
         return;
     }
     
@@ -128,6 +182,8 @@ void dispatchCmd(char **iCmdArr,size_t iArrNullIdx)
         strcat(tFinalPath,iCmdArr[0]);
 
         tIsCmdFound = access(tFinalPath, X_OK);
+
+        printf("%s\n",tFinalPath);
 
         //If command is present at the given path, execute it.
         if(0 == tIsCmdFound)
@@ -187,6 +243,7 @@ void parseAndDispatch(char * iLineBuffer, size_t iSize)
         tCmdArr[tCmdArrIdx] = NULL;
 
         dispatchCmd(tCmdArr,tCmdArrIdx);
+
         tCmdArrIdx = 0;
     }
 }
@@ -244,6 +301,20 @@ void initBatch(char* iArgv)
     fclose(tFileHandler);
 }
 
+void initInteractive(void)
+{	
+	char *tLineBuffer = NULL;
+	size_t tLineBufferSize = 0;
+
+	printf("tash> ");
+	
+	while ((tLineBufferSize = getline(&tLineBuffer, &tLineBufferSize, stdin) != -1))
+    {
+		parseAndDispatch(tLineBuffer,tLineBufferSize);
+        printf("tash> ");
+    }		
+}
+
 /**
  * @brief: initTash.
  * @details: Initialization of tash program. It decides the mode of runtime i.e Interactive or Batch Mode.
@@ -253,22 +324,17 @@ void initBatch(char* iArgv)
  */
 void initTash(int iArgc, char** iArgv)
 {
-    switch(iArgc)
+    // printf("Debug ---------> 1\n");
+    if(1 == iArgc)
     {
-        case 1:
-        {
-            // printf("Interactive Mode\n"); //Start tash in interactive mode.
-            break;
-        }
-        case 2:
-        {
-            initBatch(iArgv[iArgc-1]);  //Start tash in batch mode.
-            break;
-        }
-        default:
-        {
-            printErrorMsg();    //Invalid mode, show error. This is for more than one argument to ""./tash".
-            break;
-        }
+        initInteractive();  //Start tash in interactive mode.
+    }
+    else if(2 == iArgc)
+    {
+        initBatch(iArgv[iArgc-1]);  //Start tash in batch mode.
+    }
+    else
+    {
+        printErrorMsg();    //Invalid mode, show error. This is for more than one argument to ""./tash".
     }
 }
