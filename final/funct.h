@@ -7,6 +7,22 @@
  */
 
 /**
+ * @brief: modifyPath.
+ * @details: This is used to modify (set/update) the path variable.
+ * @param: iPath (Input) - The paths to set for the path variable.
+ * @return none.
+ */
+void modifyPath(char* iPath);
+
+/**
+ * @brief: printErrorMsg.
+ * @details: This function is used to print the one and only error message.
+ * @return none.
+ * @note: tTemp in this function is used to avoid compilation errors since we need to use the return value of write(). This is because of the compilation instructions being passed. Unused variables are considered errors in this case.
+ */
+void printErrorMsg(void);
+
+/**
  * @brief: initTash.
  * @details: Initialization of tash program. It decides the mode of runtime i.e Interactive or Batch Mode.
  * @param: iArgc (Input) - The number of input arguments passed while executing "./tash". "./tash" counts too.
@@ -29,14 +45,6 @@ void initInteractive(void);
  * @return none.
  */
 void initBatch(char* iArgv);
-
-/**
- * @brief: printErrorMsg.
- * @details: This function is used to print the one and only error message.
- * @return none.
- * @note: tTemp in this function is used to avoid compilation errors since we need to use the return value of write(). This is because of the compilation instructions being passed. Unused variables are considered errors in this case.
- */
-void printErrorMsg(void);
 
 /**
  * @brief: parseAndDispatch.
@@ -63,7 +71,4 @@ void dispatchCmd(const char **iCmdArr);
  */
 void executeCmd(char *iPath,char **iCmdArr);
 
-char * prepareSingleStrPath(const char** strings);
-
-
-
+char * prepareSingleStrPath(const char** iArr);

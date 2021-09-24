@@ -3,7 +3,7 @@
  * 
  * @paragraph: Description - Support file of tash.c. It contains all the functions that will be used by tash while execution.
  * 
- * @authors: Shreyans Patel (SSP210009), Karan Jariwala (KHJ200000)
+ * @authors: Shreyans Patel (SSP210009), Karan Jariwala (KHJ200000).
  */
 
 #include"funct.h"
@@ -228,11 +228,8 @@ void dispatchCmd(const char **iCmdArr)
         {
             return;
         }
-
-        printf("Path: %s\n",tPath);
-        printf("Path: %s\n",gPath);
+        
         modifyPath(tPath);
-        printf("Path: %s\n",gPath);
         return;
     }
     
@@ -255,7 +252,7 @@ void dispatchCmd(const char **iCmdArr)
     //Tokenization for Spaces.
     for(tSpaceToken = strtok(gPath, tSpaces); tSpaceToken != NULL; tSpaceToken = strtok(NULL, tSpaces))
     {
-        tFinalPath = (char *) malloc(sizeof(tSpaceToken) + sizeof(iCmdArr[0]) + 2);  //+2 for '/' path insertion and NULL.
+        tFinalPath = (char *) malloc(sizeof(tSpaceToken) + sizeof(iCmdArr[0]) + 2); 
         strcpy(tFinalPath,tSpaceToken);
         strcat(tFinalPath,"/");
         strcat(tFinalPath,iCmdArr[0]);
@@ -343,8 +340,6 @@ void executeCmd(char *iPath,char **iCmdArr)
         {
             char *tOutputPath = NULL;
             tOutputPath = strdup(iCmdArr[tRedirectionFileNameIdx]);
-            //  (char *) malloc(sizeof(iCmdArr[tIndex+2])+1);
-            // strcpy(tOutputPath,iCmdArr[tIndex+2]);
             close(STDOUT_FILENO);
             open(tOutputPath, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU);
             iCmdArr[tRedirectionFileNameIdx-1] = NULL;
@@ -372,51 +367,50 @@ void executeCmd(char *iPath,char **iCmdArr)
     }
 }
 
-char * prepareSingleStrPath(const char** strings)
+/**
+ * @brief: prepareSingleStrPath.
+ * @details: This command prepares a single string from an array of individual strings.
+ * @param: iArr (Input) - Array with the seperate strings.
+ * @return char * - Pointer to the combines single string.
+ */
+char * prepareSingleStrPath(const char** iArr)
 {
-    int i = 1;              /* Loop index               */
-    int count = 0;          /* Count of input strings   */
-    char * result = NULL;   /* Result string            */
-    int totalLength = 0;    /* Length of result string  */
-
-
-    /* Check special case of NULL input pointer. */
-    if (strings == NULL)
+    //Validation if array passed is null.
+    if (iArr == NULL)
     {
         return NULL;
     }
 
-    /* 
-     * Iterate through the input string array,
-     * calculating total required length for destination string.
-     * Get the total string count, too.
-     */
-    while (strings[i] != NULL)
-    {
-        totalLength += (strlen(strings[i])+1);
-        i++;
-    }
-    count = i;
-    totalLength++;  /* Consider NUL terminator. */
+    int tLoopIndex = 1;    //Loop index for array. It starts from 1 since the 0th index will have path command.
+    int tCount = 0;         //Used to count the number of elements for setting as paths.
+    char *tResult = NULL;   //Result string which is a combination of all element strings.
+    int tTotalLength = 0;   //Length of the result string.
 
-    /*
-     * Allocate memory for the destination string.
-     */
-    result = malloc(sizeof(char) * totalLength);
-    if (result == NULL) 
+    //Iterate through the array to count as well as get the total length required for final string including spaces and NULL termination.
+    while (iArr[tLoopIndex] != NULL)
     {
-        /* Memory allocation failed. */
+        tTotalLength += (strlen(iArr[tLoopIndex]) + 1); //Consider space after everypath that is entered so +1.
+        tLoopIndex++;
+    }
+
+    //Update the count variable.
+    tCount = tLoopIndex;
+
+    //Allocate required memory to the final string.
+    tResult = malloc(sizeof(char) * tTotalLength);
+
+    //Memory allocation failed.
+    if (tResult == NULL) 
+    {
         return NULL;
     }
 
-    /*
-     * Concatenate the input strings.
-     */
-    for (i = 1; i < count; i++) 
+    //Concatenate the individual elements of the array to form the final string.
+    for (tLoopIndex = 1; tLoopIndex < tCount; tLoopIndex++) 
     {
-        strcat(result, strings[i]);
-        strcat(result, " ");
+        strcat(tResult, iArr[tLoopIndex]);
+        strcat(tResult, " ");
     }
 
-    return result;
+    return tResult;
 }
