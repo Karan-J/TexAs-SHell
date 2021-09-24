@@ -222,7 +222,7 @@ void dispatchCmd(const char **iCmdArr)
     {
         char *tPath = NULL;
 
-        tPath = prepareFinalPath(iCmdArr);
+        tPath = prepareSingleStrPath(iCmdArr);
 
         if(NULL == tPath)
         {
