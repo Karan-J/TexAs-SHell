@@ -71,4 +71,10 @@ void dispatchCmd(const char **iCmdArr);
  */
 void executeCmd(char *iPath,char **iCmdArr);
 
+/**
+ * @brief: prepareSingleStrPath.
+ * @details: This command prepares a single string from an array of individual strings.
+ * @param: iArr (Input) - Array with the seperate strings.
+ * @return char * - Pointer to the combines single string.
+ */
 char * prepareSingleStrPath(const char** iArr);

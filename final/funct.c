@@ -87,12 +87,21 @@ void initInteractive(void)
 	char *tLineBuffer = NULL;
 	size_t tLineBufferSize = 0;
 
-	printf("tash> ");
+    //If there was no redirection in input, then it must be interactive mode of operation. Then print prompt.
+    if(1 == isatty(STDIN_FILENO))
+    {
+        printf("tash> ");
+    }
 	
 	while ((tLineBufferSize = getline(&tLineBuffer, &tLineBufferSize, stdin) != -1))
     {
 		parseAndDispatch(tLineBuffer);
-        printf("tash> ");
+        
+        //If there was no redirection in input, then it must be interactive mode of operation. Then print prompt.
+        if(1 == isatty(STDIN_FILENO))
+        {
+            printf("tash> ");
+        }
     }		
 }
 
