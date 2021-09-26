@@ -29,15 +29,7 @@ void modifyPath(char* iPath)
         gPath = NULL;
     }
 
-    gPath = (char *) malloc(sizeof(iPath)*sizeof(char *));
-
-    if(NULL == gPath)
-    {
-        printErrorMsg();
-        exit(0);
-    }
-
-    strcpy(gPath,iPath);
+    gPath = strdup(iPath);
 }
 
 /**
@@ -176,8 +168,20 @@ void parseAndDispatch(char * iLineBuffer)
     char *tSaveSpaceToken = NULL;
     char *tAmpersandToken = NULL;
     char *tSaveAmpersandToken = NULL;
+    char *tRedirectToken = NULL;
+    char *tSaveRedirectToken = NULL;
     const char tSpaces[] = " \t\r\n\v\f";   //Delimiters
     const char tAmpersand[] = "&";          //Delimiters
+    const char tRedirect[] = ">";           //Delimiters
+
+    char *tValidateRedirectionStr = strdup(iLineBuffer);
+    
+    //This is to validate if there is no command on the left of "&". Then it is an error.
+    if((NULL != strstr(tValidateRedirectionStr,"&")) && (0 == strcmp(strtok(tValidateRedirectionStr,tSpaces),"&")))
+    {
+        printErrorMsg();
+        return;
+    }
 
     //Tokenization for &.
     for(tAmpersandToken = strtok_r(iLineBuffer, tAmpersand, &tSaveAmpersandToken); 
@@ -189,6 +193,19 @@ void parseAndDispatch(char * iLineBuffer)
             tSpaceToken != NULL; 
             tSpaceToken=strtok_r(NULL, tSpaces, &tSaveSpaceToken)) 
         {
+            if((NULL != strstr(tSpaceToken,">")) && (0 != strcmp(tSpaceToken,">")))
+            {
+                tRedirectToken = strtok_r(tSpaceToken, tRedirect, &tSaveRedirectToken);
+                
+                tCmdArr[tCmdArrIdx] = strdup(tRedirectToken);
+                tCmdArrIdx++;
+                tCmdArr[tCmdArrIdx] = strdup(">");
+                tCmdArrIdx++;
+                tRedirectToken = strtok_r(NULL, tRedirect, &tSaveRedirectToken);
+                tCmdArr[tCmdArrIdx] = strdup(tRedirectToken);
+                tCmdArrIdx++;
+                break;
+            }
             tCmdArr[tCmdArrIdx] = strdup(tSpaceToken);
             tCmdArrIdx++;
         }
@@ -254,14 +271,16 @@ void dispatchCmd(const char **iCmdArr)
 
     int tIsCmdFound = -1;   //To check if the path variable has the command user is trying to execute.
     char *tFinalPath = NULL;
+    char *tCmdPath = strdup(gPath);
 
     char *tSpaceToken = NULL;
+    char *tSaveSpaceToken = NULL;
     const char tSpaces[] = " \t\r\n\v\f";   //Delimiters
 
     //Tokenization for Spaces.
-    for(tSpaceToken = strtok(gPath, tSpaces); tSpaceToken != NULL; tSpaceToken = strtok(NULL, tSpaces))
+    for(tSpaceToken = strtok_r(tCmdPath, tSpaces, &tSaveSpaceToken); tSpaceToken != NULL; tSpaceToken = strtok_r(NULL, tSpaces, &tSaveSpaceToken))
     {
-        tFinalPath = (char *) malloc(sizeof(tSpaceToken) + sizeof(iCmdArr[0]) + 2); 
+        tFinalPath = (char *) malloc((sizeof(tSpaceToken) + sizeof(iCmdArr[0]) + 2) * sizeof(char *)); 
         strcpy(tFinalPath,tSpaceToken);
         strcat(tFinalPath,"/");
         strcat(tFinalPath,iCmdArr[0]);
@@ -406,7 +425,7 @@ char * prepareSingleStrPath(const char** iArr)
     tCount = tLoopIndex;
 
     //Allocate required memory to the final string.
-    tResult = malloc(sizeof(char) * tTotalLength);
+    tResult = malloc(tTotalLength * sizeof(char *));
 
     //Memory allocation failed.
     if (tResult == NULL) 
@@ -420,6 +439,6 @@ char * prepareSingleStrPath(const char** iArr)
         strcat(tResult, iArr[tLoopIndex]);
         strcat(tResult, " ");
     }
-
+    
     return tResult;
 }
