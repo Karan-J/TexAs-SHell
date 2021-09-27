@@ -1,0 +1,3 @@
+path /bin /mnt/d/SHREYANS/PG_Work/CS5348_Operating_Systems_Concepts/Projects/P1/TexAs-SHell/final/
+cd test & myhello & myls
+exit
