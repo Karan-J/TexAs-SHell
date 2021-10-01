@@ -1,0 +1,9 @@
+path /bin /mnt/d/SHREYANS/PG_Work/CS5348_Operating_Systems_Concepts/Projects/P1/TexAs-SHell/final
+cd test & myls > output201 & pwd > output202 & uname > output203
+cat output201
+cat output202
+cat output203
+rm -rf output201
+rm -rf output202
+rm -rf output203
+exit
